@@ -1,0 +1,3 @@
+https://4379c6e9bc28.ngrok-free.app/api/contacts - importar todos os contatos
+https://4379c6e9bc28.ngrok-free.app/api/leads - importar todos os Leads
+https://4379c6e9bc28.ngrok-free.app/api/pipeline - importar todos os Pipelines

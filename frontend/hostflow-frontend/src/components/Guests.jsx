@@ -1,69 +1,85 @@
 import { useState, useEffect } from 'react'
-import { Plus, Edit, Trash2, User, Mail, Phone, MapPin, Calendar, Star, Search } from 'lucide-react'
+import { Plus, Edit, Trash2, User, Mail, Phone, Briefcase, Building2, FileText, Search } from 'lucide-react'
 
-const Guests = () => {
-  const [guests, setGuests] = useState([])
+const Contacts = () => {
+  const [contacts, setContacts] = useState([])
   const [loading, setLoading] = useState(true)
   const [showForm, setShowForm] = useState(false)
-  const [editingGuest, setEditingGuest] = useState(null)
+  const [editingContact, setEditingContact] = useState(null)
   const [searchTerm, setSearchTerm] = useState('')
   const [currentPage, setCurrentPage] = useState(1)
   const [totalPages, setTotalPages] = useState(1)
   const [formData, setFormData] = useState({
-    first_name: '',
-    last_name: '',
-    email: '',
+    name: '',
+    email: null,
     phone: '',
-    document_type: 'CPF',
-    document_number: '',
-    address: '',
-    city: '',
-    state: '',
-    country: 'Brasil',
-    zip_code: '',
-    birth_date: '',
-    gender: '',
-    nationality: 'Brasileira',
-    occupation: '',
-    preferences: '',
-    special_requests: '',
-    newsletter_consent: false,
-    marketing_consent: false,
-    notes: ''
+    company: null,
+    position: null,
+    notes: null
   })
 
-  const documentTypes = [
-    { value: 'CPF', label: 'CPF' },
-    { value: 'RG', label: 'RG' },
-    { value: 'Passaporte', label: 'Passaporte' },
-    { value: 'CNH', label: 'CNH' }
-  ]
-
-  const genderOptions = [
-    { value: '', label: 'Não informado' },
-    { value: 'Masculino', label: 'Masculino' },
-    { value: 'Feminino', label: 'Feminino' },
-    { value: 'Outro', label: 'Outro' }
+  // Mock data baseado no formato de contacts.json
+  const mockContacts = [
+    {
+      "company": null,
+      "created_at": "2025-08-26T18:10:25.312169",
+      "email": "marcio@example.com",
+      "id": 1,
+      "name": "Márcio",
+      "notes": "Cliente VIP",
+      "phone": "5752003168",
+      "position": "CEO",
+      "updated_at": "2025-08-26T18:10:25.312169"
+    },
+    {
+      "company": "Acme Inc",
+      "created_at": "2025-08-26T18:14:25.380912",
+      "email": "maria@acme.com",
+      "id": 2,
+      "name": "Maria Silva",
+      "notes": "Contato inicial feito via site",
+      "phone": "1198765432",
+      "position": "Marketing Director",
+      "updated_at": "2025-08-26T18:14:25.380912"
+    }
   ]
 
   useEffect(() => {
-    fetchGuests()
+    fetchContacts()
   }, [currentPage, searchTerm])
 
-  const fetchGuests = async () => {
+  const fetchContacts = async () => {
     try {
-      const params = new URLSearchParams({
-        page: currentPage,
-        per_page: 12,
-        search: searchTerm
-      })
+      setLoading(true)
       
-      const response = await fetch(`/api/guests?${params}`)
-      const data = await response.json()
-      setGuests(data.guests || [])
-      setTotalPages(data.pages || 1)
+      // URL para a API de contatos (quando estiver disponível)
+      // const params = new URLSearchParams({
+      //   page: currentPage,
+      //   per_page: 10,
+      //   search: searchTerm
+      // })
+      
+      // const response = await fetch(`https://n8n.srv888692.hstgr.cloud/webhook/Contacts?${params}`)
+      // const data = await response.json()
+      
+      // Por enquanto, usando dados mockados
+      // Simulando um pequeno atraso de rede
+      await new Promise(resolve => setTimeout(resolve, 500))
+      
+      // Filtrando os dados mockados com base no termo de busca
+      const filteredContacts = searchTerm 
+        ? mockContacts.filter(contact => 
+            contact.name?.toLowerCase().includes(searchTerm.toLowerCase()) || 
+            contact.email?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            contact.phone?.includes(searchTerm) ||
+            contact.company?.toLowerCase().includes(searchTerm.toLowerCase())
+          )
+        : mockContacts
+      
+      setContacts(filteredContacts)
+      setTotalPages(1) // Mock de uma página
     } catch (error) {
-      console.error('Erro ao carregar hóspedes:', error)
+      console.error('Erro ao carregar contatos:', error)
     } finally {
       setLoading(false)
     }
@@ -72,93 +88,82 @@ const Guests = () => {
   const handleSubmit = async (e) => {
     e.preventDefault()
     try {
-      const url = editingGuest ? `/api/guests/${editingGuest.id}` : '/api/guests'
-      const method = editingGuest ? 'PUT' : 'POST'
-      
-      const response = await fetch(url, {
-        method,
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(formData)
-      })
-
-      if (response.ok) {
-        fetchGuests()
-        resetForm()
+      // Em um ambiente real, aqui teríamos a chamada para a API
+      if (editingContact) {
+        // Atualização de contato existente
+        setContacts(prevContacts => 
+          prevContacts.map(contact => 
+            contact.id === editingContact.id 
+              ? { ...contact, ...formData, updated_at: new Date().toISOString() } 
+              : contact
+          )
+        )
       } else {
-        const error = await response.json()
-        alert(error.error || 'Erro ao salvar hóspede')
+        // Criação de novo contato
+        const newContact = {
+          ...formData,
+          id: Math.max(0, ...contacts.map(c => c.id)) + 1,
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString()
+        }
+        setContacts(prev => [...prev, newContact])
       }
+      
+      resetForm()
     } catch (error) {
-      console.error('Erro ao salvar hóspede:', error)
-      alert('Erro ao salvar hóspede')
+      console.error('Erro ao salvar contato:', error)
+      alert('Erro ao salvar contato')
     }
   }
 
-  const handleEdit = (guest) => {
-    setEditingGuest(guest)
+  const handleEdit = (contact) => {
+    setEditingContact(contact)
     setFormData({
-      ...guest,
-      birth_date: guest.birth_date || '',
-      preferences: guest.preferences || '',
-      special_requests: guest.special_requests || '',
-      notes: guest.notes || ''
+      name: contact.name || '',
+      email: contact.email || null,
+      phone: contact.phone || '',
+      company: contact.company || null,
+      position: contact.position || null,
+      notes: contact.notes || null
     })
     setShowForm(true)
   }
 
   const handleDelete = async (id) => {
-    if (confirm('Tem certeza que deseja excluir este hóspede?')) {
+    if (confirm('Tem certeza que deseja excluir este contato?')) {
       try {
-        const response = await fetch(`/api/guests/${id}`, {
-          method: 'DELETE'
-        })
-        if (response.ok) {
-          fetchGuests()
-        }
+        // Em um ambiente real, aqui teríamos a chamada para a API de exclusão
+        setContacts(contacts.filter(contact => contact.id !== id))
       } catch (error) {
-        console.error('Erro ao excluir hóspede:', error)
+        console.error('Erro ao excluir contato:', error)
       }
     }
   }
 
   const resetForm = () => {
     setFormData({
-      first_name: '',
-      last_name: '',
-      email: '',
+      name: '',
+      email: null,
       phone: '',
-      document_type: 'CPF',
-      document_number: '',
-      address: '',
-      city: '',
-      state: '',
-      country: 'Brasil',
-      zip_code: '',
-      birth_date: '',
-      gender: '',
-      nationality: 'Brasileira',
-      occupation: '',
-      preferences: '',
-      special_requests: '',
-      newsletter_consent: false,
-      marketing_consent: false,
-      notes: ''
+      company: null,
+      position: null,
+      notes: null
     })
-    setEditingGuest(null)
+    setEditingContact(null)
     setShowForm(false)
   }
 
   const handleSearch = (e) => {
     setSearchTerm(e.target.value)
     setCurrentPage(1)
+    // In a real implementation, we'd likely debounce this to avoid too many API calls
+    fetchContacts()
   }
 
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-red-500"></div>
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600"></div>
       </div>
     )
   }
@@ -167,15 +172,15 @@ const Guests = () => {
     <div className="space-y-6">
       <div className="flex justify-between items-center">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Hóspedes</h1>
-          <p className="text-gray-600">Gerencie o cadastro de hóspedes</p>
+          <h1 className="text-2xl font-bold text-gray-900">Contatos</h1>
+          <p className="text-gray-600">Gerencie sua base de contatos</p>
         </div>
         <button
           onClick={() => setShowForm(true)}
-          className="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600 flex items-center gap-2"
+          className="bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 flex items-center gap-2"
         >
           <Plus className="h-4 w-4" />
-          Novo Hóspede
+          Novo Contato
         </button>
       </div>
 
@@ -185,73 +190,72 @@ const Guests = () => {
           <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
           <input
             type="text"
-            placeholder="Buscar por nome ou email..."
+            placeholder="Buscar por nome, empresa ou telefone..."
             value={searchTerm}
             onChange={handleSearch}
-            className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
+            className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
           />
         </div>
       </div>
 
       {showForm && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-lg p-6 w-full max-w-4xl max-h-[90vh] overflow-y-auto">
-            <h2 className="text-xl font-bold mb-4">
-              {editingGuest ? 'Editar Hóspede' : 'Novo Hóspede'}
-            </h2>
+          <div className="bg-white rounded-lg p-6 w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+            <div className="flex justify-between items-center mb-4">
+              <h2 className="text-xl font-bold">
+                {editingContact ? 'Editar Contato' : 'Novo Contato'}
+              </h2>
+              <button 
+                onClick={resetForm} 
+                className="text-gray-500 hover:text-gray-800"
+                type="button"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                  <path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd" />
+                </svg>
+              </button>
+            </div>
             
             <form onSubmit={handleSubmit} className="space-y-4">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Nome *
-                  </label>
-                  <input
-                    type="text"
-                    required
-                    value={formData.first_name}
-                    onChange={(e) => setFormData(prev => ({ ...prev, first_name: e.target.value }))}
-                    className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-red-500 focus:border-transparent"
-                  />
-                </div>
-                
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Sobrenome *
-                  </label>
-                  <input
-                    type="text"
-                    required
-                    value={formData.last_name}
-                    onChange={(e) => setFormData(prev => ({ ...prev, last_name: e.target.value }))}
-                    className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-red-500 focus:border-transparent"
-                  />
-                </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Nome completo *
+                </label>
+                <input
+                  type="text"
+                  required
+                  value={formData.name || ''}
+                  onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
+                  className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                  placeholder="Nome do contato"
+                />
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Email *
+                    Email
                   </label>
                   <input
                     type="email"
-                    required
-                    value={formData.email}
-                    onChange={(e) => setFormData(prev => ({ ...prev, email: e.target.value }))}
-                    className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-red-500 focus:border-transparent"
+                    value={formData.email || ''}
+                    onChange={(e) => setFormData(prev => ({ ...prev, email: e.target.value || null }))}
+                    className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                    placeholder="email@exemplo.com"
                   />
                 </div>
                 
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Telefone
+                    Telefone *
                   </label>
                   <input
                     type="text"
-                    value={formData.phone}
+                    required
+                    value={formData.phone || ''}
                     onChange={(e) => setFormData(prev => ({ ...prev, phone: e.target.value }))}
-                    className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-red-500 focus:border-transparent"
+                    className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                    placeholder="(00) 00000-0000"
                   />
                 </div>
               </div>
@@ -259,186 +263,45 @@ const Guests = () => {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Tipo de Documento
+                    Empresa
                   </label>
-                  <select
-                    value={formData.document_type}
-                    onChange={(e) => setFormData(prev => ({ ...prev, document_type: e.target.value }))}
-                    className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-red-500 focus:border-transparent"
-                  >
-                    {documentTypes.map(type => (
-                      <option key={type.value} value={type.value}>
-                        {type.label}
-                      </option>
-                    ))}
-                  </select>
+                  <input
+                    type="text"
+                    value={formData.company || ''}
+                    onChange={(e) => setFormData(prev => ({ ...prev, company: e.target.value || null }))}
+                    className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                    placeholder="Nome da empresa"
+                  />
                 </div>
                 
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Número do Documento
+                    Cargo
                   </label>
                   <input
                     type="text"
-                    value={formData.document_number}
-                    onChange={(e) => setFormData(prev => ({ ...prev, document_number: e.target.value }))}
-                    className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-red-500 focus:border-transparent"
+                    value={formData.position || ''}
+                    onChange={(e) => setFormData(prev => ({ ...prev, position: e.target.value || null }))}
+                    className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                    placeholder="Cargo na empresa"
                   />
                 </div>
               </div>
 
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Endereço
-                </label>
-                <input
-                  type="text"
-                  value={formData.address}
-                  onChange={(e) => setFormData(prev => ({ ...prev, address: e.target.value }))}
-                  className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-red-500 focus:border-transparent"
-                />
-              </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Cidade
-                  </label>
-                  <input
-                    type="text"
-                    value={formData.city}
-                    onChange={(e) => setFormData(prev => ({ ...prev, city: e.target.value }))}
-                    className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-red-500 focus:border-transparent"
-                  />
-                </div>
-                
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Estado
-                  </label>
-                  <input
-                    type="text"
-                    value={formData.state}
-                    onChange={(e) => setFormData(prev => ({ ...prev, state: e.target.value }))}
-                    className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-red-500 focus:border-transparent"
-                  />
-                </div>
-                
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    CEP
-                  </label>
-                  <input
-                    type="text"
-                    value={formData.zip_code}
-                    onChange={(e) => setFormData(prev => ({ ...prev, zip_code: e.target.value }))}
-                    className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-red-500 focus:border-transparent"
-                  />
-                </div>
-              </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Data de Nascimento
-                  </label>
-                  <input
-                    type="date"
-                    value={formData.birth_date}
-                    onChange={(e) => setFormData(prev => ({ ...prev, birth_date: e.target.value }))}
-                    className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-red-500 focus:border-transparent"
-                  />
-                </div>
-                
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Gênero
-                  </label>
-                  <select
-                    value={formData.gender}
-                    onChange={(e) => setFormData(prev => ({ ...prev, gender: e.target.value }))}
-                    className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-red-500 focus:border-transparent"
-                  >
-                    {genderOptions.map(option => (
-                      <option key={option.value} value={option.value}>
-                        {option.label}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-                
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Nacionalidade
-                  </label>
-                  <input
-                    type="text"
-                    value={formData.nationality}
-                    onChange={(e) => setFormData(prev => ({ ...prev, nationality: e.target.value }))}
-                    className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-red-500 focus:border-transparent"
-                  />
-                </div>
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Profissão
-                </label>
-                <input
-                  type="text"
-                  value={formData.occupation}
-                  onChange={(e) => setFormData(prev => ({ ...prev, occupation: e.target.value }))}
-                  className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-red-500 focus:border-transparent"
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Solicitações Especiais
+                  Observações
                 </label>
                 <textarea
-                  value={formData.special_requests}
-                  onChange={(e) => setFormData(prev => ({ ...prev, special_requests: e.target.value }))}
+                  value={formData.notes || ''}
+                  onChange={(e) => setFormData(prev => ({ ...prev, notes: e.target.value || null }))}
                   rows={3}
-                  className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-red-500 focus:border-transparent"
+                  className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                  placeholder="Observações e notas sobre este contato"
                 />
               </div>
 
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Notas Internas
-                </label>
-                <textarea
-                  value={formData.notes}
-                  onChange={(e) => setFormData(prev => ({ ...prev, notes: e.target.value }))}
-                  rows={3}
-                  className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-red-500 focus:border-transparent"
-                />
-              </div>
-
-              <div className="space-y-2">
-                <label className="flex items-center space-x-2">
-                  <input
-                    type="checkbox"
-                    checked={formData.newsletter_consent}
-                    onChange={(e) => setFormData(prev => ({ ...prev, newsletter_consent: e.target.checked }))}
-                    className="rounded border-gray-300 text-red-500 focus:ring-red-500"
-                  />
-                  <span className="text-sm">Aceita receber newsletter</span>
-                </label>
-                
-                <label className="flex items-center space-x-2">
-                  <input
-                    type="checkbox"
-                    checked={formData.marketing_consent}
-                    onChange={(e) => setFormData(prev => ({ ...prev, marketing_consent: e.target.checked }))}
-                    className="rounded border-gray-300 text-red-500 focus:ring-red-500"
-                  />
-                  <span className="text-sm">Aceita receber comunicações de marketing</span>
-                </label>
-              </div>
-
-              <div className="flex justify-end space-x-3 pt-4">
+              <div className="flex justify-end space-x-3 pt-4 border-t">
                 <button
                   type="button"
                   onClick={resetForm}
@@ -448,9 +311,9 @@ const Guests = () => {
                 </button>
                 <button
                   type="submit"
-                  className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600"
+                  className="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition"
                 >
-                  {editingGuest ? 'Atualizar' : 'Criar'} Hóspede
+                  {editingContact ? 'Atualizar' : 'Criar'} Contato
                 </button>
               </div>
             </form>
@@ -459,31 +322,32 @@ const Guests = () => {
       )}
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {guests.map(guest => (
-          <div key={guest.id} className="bg-white rounded-lg shadow-md p-4">
+        {contacts.map(contact => (
+          <div key={contact.id} className="bg-white rounded-lg shadow-md p-5 hover:shadow-lg transition-shadow">
             <div className="flex justify-between items-start mb-3">
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 bg-red-100 rounded-full flex items-center justify-center">
-                  <User className="h-5 w-5 text-red-600" />
+                <div className="w-10 h-10 bg-indigo-100 rounded-full flex items-center justify-center">
+                  <User className="h-5 w-5 text-indigo-600" />
                 </div>
                 <div>
-                  <h3 className="font-semibold text-gray-900">{guest.full_name}</h3>
-                  <div className="flex items-center gap-1">
-                    <Star className="h-3 w-3 text-yellow-400 fill-current" />
-                    <span className="text-sm text-gray-600">{guest.rating}</span>
-                  </div>
+                  <h3 className="font-semibold text-gray-900">{contact.name}</h3>
+                  {contact.position && (
+                    <span className="text-sm text-gray-600">{contact.position}</span>
+                  )}
                 </div>
               </div>
               <div className="flex space-x-1">
                 <button
-                  onClick={() => handleEdit(guest)}
-                  className="p-1 text-gray-400 hover:text-blue-500"
+                  onClick={() => handleEdit(contact)}
+                  className="p-1 text-gray-400 hover:text-indigo-600 transition"
+                  title="Editar contato"
                 >
                   <Edit className="h-4 w-4" />
                 </button>
                 <button
-                  onClick={() => handleDelete(guest.id)}
-                  className="p-1 text-gray-400 hover:text-red-500"
+                  onClick={() => handleDelete(contact.id)}
+                  className="p-1 text-gray-400 hover:text-red-500 transition"
+                  title="Excluir contato"
                 >
                   <Trash2 className="h-4 w-4" />
                 </button>
@@ -491,59 +355,47 @@ const Guests = () => {
             </div>
             
             <div className="space-y-2 text-sm text-gray-600">
-              <div className="flex items-center gap-2">
-                <Mail className="h-4 w-4" />
-                <span>{guest.email}</span>
-              </div>
-              
-              {guest.phone && (
+              {contact.email && (
                 <div className="flex items-center gap-2">
-                  <Phone className="h-4 w-4" />
-                  <span>{guest.phone}</span>
+                  <Mail className="h-4 w-4 text-gray-400" />
+                  <span>{contact.email}</span>
                 </div>
               )}
               
-              {guest.city && guest.state && (
+              {contact.phone && (
                 <div className="flex items-center gap-2">
-                  <MapPin className="h-4 w-4" />
-                  <span>{guest.city}, {guest.state}</span>
+                  <Phone className="h-4 w-4 text-gray-400" />
+                  <span>{contact.phone}</span>
                 </div>
               )}
               
-              {guest.age && (
+              {contact.company && (
                 <div className="flex items-center gap-2">
-                  <Calendar className="h-4 w-4" />
-                  <span>{guest.age} anos</span>
+                  <Building2 className="h-4 w-4 text-gray-400" />
+                  <span>{contact.company}</span>
+                </div>
+              )}
+              
+              {contact.notes && (
+                <div className="flex items-start gap-2 mt-3">
+                  <FileText className="h-4 w-4 text-gray-400 mt-0.5" />
+                  <span className="flex-1">{contact.notes}</span>
                 </div>
               )}
             </div>
             
-            <div className="mt-3 pt-3 border-t border-gray-200">
-              <div className="grid grid-cols-2 gap-4 text-sm">
+            <div className="mt-3 pt-3 border-t border-gray-200 text-xs text-gray-500">
+              {contact.created_at && (
                 <div>
-                  <span className="text-gray-600">Reservas:</span>
-                  <span className="font-medium ml-1">{guest.total_bookings}</span>
+                  Criado em: {new Date(contact.created_at).toLocaleDateString('pt-BR')}
                 </div>
+              )}
+              {contact.updated_at && contact.updated_at !== contact.created_at && (
                 <div>
-                  <span className="text-gray-600">Gasto total:</span>
-                  <span className="font-medium ml-1">R$ {guest.total_spent.toFixed(2)}</span>
-                </div>
-              </div>
-              
-              {guest.last_stay_date && (
-                <div className="text-xs text-gray-500 mt-2">
-                  Última estadia: {new Date(guest.last_stay_date).toLocaleDateString('pt-BR')}
+                  Atualizado em: {new Date(contact.updated_at).toLocaleDateString('pt-BR')}
                 </div>
               )}
             </div>
-            
-            {guest.occupation && (
-              <div className="mt-2">
-                <span className="px-2 py-1 bg-gray-100 text-xs rounded-full">
-                  {guest.occupation}
-                </span>
-              </div>
-            )}
           </div>
         ))}
       </div>
@@ -573,23 +425,25 @@ const Guests = () => {
         </div>
       )}
 
-      {guests.length === 0 && !loading && (
-        <div className="text-center py-12">
-          <div className="text-gray-400 mb-4">
-            <User className="h-12 w-12 mx-auto" />
+      {contacts.length === 0 && !loading && (
+        <div className="text-center py-12 bg-white rounded-lg shadow-sm">
+          <div className="text-indigo-200 mb-4">
+            <User className="h-16 w-16 mx-auto" />
           </div>
           <h3 className="text-lg font-medium text-gray-900 mb-2">
-            {searchTerm ? 'Nenhum hóspede encontrado' : 'Nenhum hóspede cadastrado'}
+            {searchTerm ? 'Nenhum contato encontrado' : 'Nenhum contato cadastrado'}
           </h3>
-          <p className="text-gray-600 mb-4">
-            {searchTerm ? 'Tente ajustar os termos de busca' : 'Comece cadastrando seu primeiro hóspede'}
+          <p className="text-gray-600 mb-6">
+            {searchTerm 
+              ? 'Tente ajustar os termos de busca ou limpar o filtro' 
+              : 'Sua base de contatos está vazia. Adicione seu primeiro contato agora.'}
           </p>
           {!searchTerm && (
             <button
               onClick={() => setShowForm(true)}
-              className="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600"
+              className="bg-indigo-600 text-white px-5 py-2 rounded-lg hover:bg-indigo-700 transition"
             >
-              Cadastrar Primeiro Hóspede
+              Adicionar Primeiro Contato
             </button>
           )}
         </div>
@@ -598,5 +452,6 @@ const Guests = () => {
   )
 }
 
-export default Guests
+// Rename the file to Contacts.jsx when saving
+export default Contacts
 

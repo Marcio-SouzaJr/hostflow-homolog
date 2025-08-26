@@ -1,0 +1,15 @@
+{
+  "assigned_to": null,
+  "contact": null,
+  "contact_id": null,
+  "created_at": "2025-08-26T18:05:19.956201",
+  "description": null,
+  "expected_close_date": null,
+  "id": 1,
+  "priority": "high",
+  "source": "Postman",
+  "stage": "new",
+  "title": "Novo Lead de Teste via Postman",
+  "updated_at": "2025-08-26T18:05:19.956201",
+  "value": 1500
+}

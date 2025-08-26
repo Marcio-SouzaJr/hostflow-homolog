@@ -1,0 +1,126 @@
+[
+  {
+    "closed_lost": {
+      "count": 0,
+      "leads": [],
+      "total_value": 0
+    },
+    "closed_won": {
+      "count": 0,
+      "leads": [],
+      "total_value": 0
+    },
+    "negotiation": {
+      "count": 0,
+      "leads": [],
+      "total_value": 0
+    },
+    "new": {
+      "count": 3,
+      "leads": [
+        {
+          "assigned_to": null,
+          "contact": null,
+          "contact_id": null,
+          "created_at": "2025-08-26T18:05:19.956201",
+          "description": null,
+          "expected_close_date": null,
+          "id": 1,
+          "priority": "high",
+          "source": "Postman",
+          "stage": "new",
+          "title": "Novo Lead de Teste via Postman",
+          "updated_at": "2025-08-26T18:05:19.956201",
+          "value": 1500
+        },
+        {
+          "assigned_to": null,
+          "contact": {
+            "company": null,
+            "created_at": "2025-08-26T18:10:25.312169",
+            "email": null,
+            "id": 1,
+            "name": "Márcio",
+            "notes": null,
+            "phone": "5752003168",
+            "position": null,
+            "updated_at": "2025-08-26T18:10:25.312169"
+          },
+          "contact_id": 1,
+          "created_at": "2025-08-26T18:11:34.719624",
+          "description": "Contato recebido através do bot do Telegram.",
+          "expected_close_date": null,
+          "id": 2,
+          "priority": "medium",
+          "source": "Telegram",
+          "stage": "new",
+          "title": "Novo Lead via Telegram - Márcio",
+          "updated_at": "2025-08-26T18:11:34.719624",
+          "value": 0
+        },
+        {
+          "assigned_to": null,
+          "contact": {
+            "company": null,
+            "created_at": "2025-08-26T18:14:25.380912",
+            "email": null,
+            "id": 2,
+            "name": "Alberto",
+            "notes": null,
+            "phone": "6579028215",
+            "position": null,
+            "updated_at": "2025-08-26T18:14:25.380912"
+          },
+          "contact_id": 2,
+          "created_at": "2025-08-26T18:16:33.156973",
+          "description": "Contato recebido através do bot do Telegram.",
+          "expected_close_date": null,
+          "id": 4,
+          "priority": "medium",
+          "source": "Telegram",
+          "stage": "new",
+          "title": "Novo Lead via Telegram - Alberto",
+          "updated_at": "2025-08-26T18:16:33.156973",
+          "value": 0
+        }
+      ],
+      "total_value": 1500
+    },
+    "proposal": {
+      "count": 1,
+      "leads": [
+        {
+          "assigned_to": null,
+          "contact": {
+            "company": null,
+            "created_at": "2025-08-26T18:14:50.580594",
+            "email": null,
+            "id": 3,
+            "name": "M.",
+            "notes": null,
+            "phone": "5310826495",
+            "position": null,
+            "updated_at": "2025-08-26T18:14:50.580594"
+          },
+          "contact_id": 3,
+          "created_at": "2025-08-26T18:14:50.748109",
+          "description": "Contato recebido através do bot do Telegram.",
+          "expected_close_date": null,
+          "id": 3,
+          "priority": "medium",
+          "source": "Telegram",
+          "stage": "proposal",
+          "title": "Novo Lead via Telegram - M.",
+          "updated_at": "2025-08-26T18:19:04.433150",
+          "value": 0
+        }
+      ],
+      "total_value": 0
+    },
+    "qualified": {
+      "count": 0,
+      "leads": [],
+      "total_value": 0
+    }
+  }
+]

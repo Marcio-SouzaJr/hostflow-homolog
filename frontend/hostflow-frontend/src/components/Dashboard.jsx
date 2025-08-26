@@ -5,6 +5,7 @@ import Properties from './Properties'
 import Accommodations from './Accommodations'
 import Guests from './Guests'
 import Bookings from './Bookings'
+import CRMIndex from './CRM/CRMIndex'
 
 const Dashboard = ({ onLogout }) => {
   const [activeSection, setActiveSection] = useState('dashboard')
@@ -21,7 +22,8 @@ const Dashboard = ({ onLogout }) => {
     { id: 'accommodations', label: 'Acomodações', icon: Bed },
     { id: 'guests', label: 'Hóspedes', icon: Users },
     { id: 'bookings', label: 'Reservas', icon: Calendar },
-    { id: 'ai-agent', label: 'Agente de IA', icon: Bot }
+    { id: 'ai-agent', label: 'Agente de IA', icon: Bot },
+    { id: 'crm', label: 'CRM', icon: BarChart3 }
   ]
 
   const renderContent = () => {
@@ -36,6 +38,8 @@ const Dashboard = ({ onLogout }) => {
         return <Bookings />
       case 'ai-agent':
         return <AIAgent />
+      case 'crm':
+        return <CRMIndex />
       default:
         return (
           <div className="space-y-6">

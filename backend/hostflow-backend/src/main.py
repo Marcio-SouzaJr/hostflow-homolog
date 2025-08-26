@@ -16,6 +16,7 @@ from src.routes.property_routes import property_bp
 from src.routes.accommodation_routes import accommodation_bp
 from src.routes.guest_routes import guest_bp
 from src.routes.booking_routes import booking_bp
+from src.routes.crm_routes import crm_bp
 
 app = Flask(__name__, static_folder=os.path.join(os.path.dirname(__file__), 'static'))
 app.config['SECRET_KEY'] = 'asdf#FGSgvasgf$5$WGT'
@@ -30,6 +31,7 @@ app.register_blueprint(property_bp, url_prefix='/api')
 app.register_blueprint(accommodation_bp, url_prefix='/api')
 app.register_blueprint(guest_bp, url_prefix='/api')
 app.register_blueprint(booking_bp, url_prefix='/api')
+app.register_blueprint(crm_bp, url_prefix='/api')
 
 # Database configuration
 app.config['SQLALCHEMY_DATABASE_URI'] = f"sqlite:///{os.path.join(os.path.dirname(__file__), 'database', 'app.db')}"
